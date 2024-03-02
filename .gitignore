@@ -1,0 +1,11 @@
+node_modules
+allure*
+reports*
+
+# Environment
+test.env.json
+.env
+.env*
+
+# Credentials
+test/data/credentials.js
