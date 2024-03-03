@@ -14,12 +14,26 @@ describe('Search Feature', () => {
         // Verify that the dashboard page is displayed after login
         await expect(DashboardPage.dashboardTitle).toBeExisting()
 
-        // Perform menu search in the sidebar
-        await DashboardPage.setSearchMenu('Admin')
-        await DashboardPage.setSearchMenu('PIM')
-        await DashboardPage.setSearchMenu('Leave')
-        await DashboardPage.setSearchMenu('Admin')
-        await DashboardPage.setSearchMenu('Admin')
-        await DashboardPage.setSearchMenu('Admin')
+        // Perform menu search in the sidebar and validate the result
+        const menuItems = [
+            'Admin', 
+            'PIM', 
+            'Leave', 
+            'Time', 
+            'Recruitment', 
+            'My Info', 
+            'Performance', 
+            'Dashboard', 
+            'Directory', 
+            'Maintenance', 
+            'Claim', 
+            'Buzz'
+        ];
+        
+        for (const menuItem of menuItems) {
+            await DashboardPage.setsearchMenu(menuItem);
+            await DashboardPage.verifySearchResult(menuItem);
+        }
+        
     })
 })

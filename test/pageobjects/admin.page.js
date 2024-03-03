@@ -8,24 +8,29 @@ class DashboardPage{
     /**
      * define selectors using getter methods
      */
-    get searchMenu () {
-        return $('//div[@class="oxd-main-menu-search"]/input');
+    get adminMenu () {
+        return $('//li/a/span[text()="Admin"]');
     }
 
-    get dashboardTitle () {
-        return $('h6=Dashboard');
+    get userManagementSubMenu () {
+        return $('//span[text()="User Management "]');
     }
 
-    get searchResult () {
-        return $('//li[1]/a');
+    get userList () {
+        return $('//li/a[text()="Users"]');
+    }
+
+    get userList () {
+        return $('//li/a[text()="Users"]');
     }
 
     /**
      * a method to encapsule automation code to interact with the page
      * e.g. to login using username and password
      */
-    async verifyDashboardTitle () {
-        await expect(this.dashboardTitle).toBeDisplayed()
+    
+    async verifyUserPage () {
+        await expect(browser).toHaveUrl('https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewSystemUsers')
     }
 
     async setsearchMenu(menu) {
