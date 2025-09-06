@@ -136,6 +136,8 @@ npm run test:report        # Run tests + generate + open Allure reports
 
 ### 🎨 **Allure Reporting System**
 
+<img width="1439" height="898" alt="webdriverIO-Test-report" src="https://github.com/user-attachments/assets/b2c16160-da62-462d-a144-b89afa25f703" />
+
 Generate comprehensive, interactive test reports with detailed execution analytics:
 
 ```bash
@@ -372,3 +374,4 @@ await allure.step('Step 7: Fill Account Information', async () => {
 **⭐ If you found this project helpful, please give it a star!**
 
 *This project demonstrates professional test automation capabilities using modern tools and industry best practices. Perfect for portfolio demonstration and learning purposes.*
+
