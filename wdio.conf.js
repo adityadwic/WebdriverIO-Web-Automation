@@ -52,7 +52,17 @@ export const config = {
     //
     capabilities: [{
         // capabilities for local browser web tests
-        browserName: 'chrome' // or "firefox", "microsoftedge", "safari"
+        browserName: 'chrome', // or "firefox", "microsoftedge", "safari"
+        'goog:chromeOptions': {
+            args: [
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+                // Add '--headless' for headless mode
+            ]
+        }
     }],
 
     //
@@ -89,11 +99,11 @@ export const config = {
     // baseUrl: 'http://localhost:8080',
     //
     // Default timeout for all waitFor* commands.
-    waitforTimeout: 10000,
+    waitforTimeout: 30000,
     //
     // Default timeout in milliseconds for request
     // if browser driver or grid doesn't send response
-    connectionRetryTimeout: 120000,
+    connectionRetryTimeout: 180000,
     //
     // Default request retries count
     connectionRetryCount: 3,
@@ -125,13 +135,44 @@ export const config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: ['spec'],
+    reporters: [
+        ['spec', {
+            addConsoleLogs: true,
+            showPreface: false,
+            realtimeReporting: true
+        }],
+        ['allure', {
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false,
+            useCucumberStepReporter: false,
+            disableMochaHooks: false,
+            addConsoleLogs: true,
+            reportedEnvironmentVars: {
+                OS: process.platform,
+                BROWSER: process.env.BROWSER || 'chrome',
+                ENVIRONMENT: process.env.TEST_ENV || 'dev'
+            }
+        }],
+        ['json', {
+            outputDir: './test-results/',
+            outputFileFormat: function(options) {
+                return `results-${new Date().toISOString().slice(0,10)}.json`
+            }
+        }],
+        ['junit', {
+            outputDir: './test-results/',
+            outputFileFormat: function(options) {
+                return `junit-results-${new Date().toISOString().slice(0,10)}.xml`
+            }
+        }]
+    ],
 
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 120000
     },
 
     //
@@ -204,8 +245,10 @@ export const config = {
     /**
      * Function to be executed before a test (in Mocha/Jasmine) starts.
      */
-    // beforeTest: function (test, context) {
-    // },
+    beforeTest: async function (test, context) {
+        // Add test info to Allure
+        await browser.execute('/*@visual.init*/', 'Test Started: ' + test.title);
+    },
     /**
      * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
      * beforeEach in Mocha)
@@ -228,8 +271,28 @@ export const config = {
      * @param {boolean} result.passed    true if test has passed, otherwise false
      * @param {object}  result.retries   information about spec related retries, e.g. `{ attempts: 0, limit: 0 }`
      */
-    // afterTest: function(test, context, { error, result, duration, passed, retries }) {
-    // },
+    afterTest: async function(test, context, { error, result, duration, passed, retries }) {
+        // Take screenshot if test failed
+        if (!passed) {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const screenshotName = `FAILED_${test.title.replace(/\s+/g, '_')}_${timestamp}.png`;
+            const screenshotPath = `./screenshots/${screenshotName}`;
+            
+            try {
+                await browser.saveScreenshot(screenshotPath);
+                console.log(`📸 Screenshot saved: ${screenshotName}`);
+                
+                // Add screenshot to Allure report
+                await browser.execute('/*@visual.screenshot*/', screenshotPath);
+            } catch (screenshotError) {
+                console.log('❌ Failed to take screenshot:', screenshotError.message);
+            }
+        }
+        
+        // Log test completion
+        const status = passed ? '✅ PASSED' : '❌ FAILED';
+        console.log(`${status}: ${test.title} (${duration}ms)`);
+    },
 
 
     /**

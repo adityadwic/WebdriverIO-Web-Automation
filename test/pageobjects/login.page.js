@@ -2,47 +2,85 @@ import { $ } from '@wdio/globals'
 import Page from './page.js';
 
 /**
- * sub page containing specific selectors and methods for a specific page
+ * Login/Signup page containing specific selectors and methods for authentication
  */
 class LoginPage extends Page {
     /**
      * define selectors using getter methods
      */
-    get inputUsername () {
-        return $('input[name="username"]');
+    // Signup section
+    get newUserSignupText() {
+        return $('//h2[text()="New User Signup!"]');
     }
 
-    get inputPassword () {
-        return $('input[name="password"]');
+    get signupNameInput() {
+        return $('input[data-qa="signup-name"]');
     }
 
-    get btnSubmit () {
-        return $('button=Login');
+    get signupEmailInput() {
+        return $('input[data-qa="signup-email"]');
     }
 
-    get invalidLoginValidation () {
-        return $('p=Invalid credentials');
+    get signupButton() {
+        return $('button[data-qa="signup-button"]');
+    }
+
+    // Login section  
+    get loginEmailInput() {
+        return $('input[data-qa="login-email"]');
+    }
+
+    get loginPasswordInput() {
+        return $('input[data-qa="login-password"]');
+    }
+
+    get loginButton() {
+        return $('button[data-qa="login-button"]');
+    }
+
+    get loginToYourAccountText() {
+        return $('//h2[text()="Login to your account"]');
     }
 
     /**
-     * a method to encapsule automation code to interact with the page
-     * e.g. to login using username and password
+     * Methods for signup functionality
      */
-    async login (username, password) {
-        await this.inputUsername.setValue(username);
-        await this.inputPassword.setValue(password);
-        await this.btnSubmit.click();
+    async verifyNewUserSignupVisible() {
+        await expect(this.newUserSignupText).toBeDisplayed();
+        await expect(this.newUserSignupText).toHaveText('New User Signup!');
     }
 
-    async verifyInvalidLogin () {
-        await expect(this.invalidLoginValidation).toBeDisplayed()
+    async enterSignupDetails(name, email) {
+        await this.signupNameInput.waitForDisplayed();
+        await this.signupNameInput.setValue(name);
+        await this.signupEmailInput.setValue(email);
+    }
+
+    async clickSignupButton() {
+        await this.signupButton.waitForDisplayed();
+        await this.signupButton.click();
+    }
+
+    async performSignup(name, email) {
+        await this.enterSignupDetails(name, email);
+        await this.clickSignupButton();
     }
 
     /**
-     * overwrite specific options to adapt it to page object
+     * Methods for login functionality
      */
-    open () {
-        return super.open('auth/login');
+    async performLogin(email, password) {
+        await this.loginEmailInput.waitForDisplayed();
+        await this.loginEmailInput.setValue(email);
+        await this.loginPasswordInput.setValue(password);
+        await this.loginButton.click();
+    }
+
+    /**
+     * Navigate to login page
+     */
+    open() {
+        return super.open('login');
     }
 }
 

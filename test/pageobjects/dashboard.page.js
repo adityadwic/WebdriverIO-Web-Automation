@@ -2,47 +2,59 @@ import { $ } from '@wdio/globals'
 import Page from './page.js';
 
 /**
- * sub page containing specific selectors and methods for a specific page
+ * Header/Navigation page containing specific selectors and methods for navigation functionality
  */
-class DashboardPage{
+class HeaderPage extends Page {
     /**
      * define selectors using getter methods
      */
-    get searchMenu () {
-        return $('//div[@class="oxd-main-menu-search"]/input');
+    get loggedInAsText() {
+        return $('//a[contains(text(), "Logged in as")]');
     }
 
-    get dashboardTitle () {
-        return $('h6=Dashboard');
+    get deleteAccountButton() {
+        return $('a[href="/delete_account"]');
     }
 
-    get searchResult () {
-        return $('//li[1]/a');
+    get logoutButton() {
+        return $('a[href="/logout"]');
     }
 
-    /**
-     * a method to encapsule automation code to interact with the page
-     * e.g. to login using username and password
-     */
-    async verifyDashboardTitle () {
-        await expect(this.dashboardTitle).toBeDisplayed()
+    get homeButton() {
+        return $('a[href="/"]');
     }
 
-    async setsearchMenu(menu) {
-        await this.searchMenu.waitForDisplayed(); // Wait for the element to be displayed
-        await this.searchMenu.setValue(menu);
+    get contactUsButton() {
+        return $('a[href="/contact_us"]');
     }
 
-    async verifySearchResult (menu) {
-        await this.searchResult.waitForDisplayed()
-        await expect(this.searchResult).toBeDisplayed()
-        await expect(this.searchResult).toHaveText(menu)
-        await browser.refresh()
+    get cartButton() {
+        return $('a[href="/view_cart"]');
     }
 
     /**
-     * overwrite specific options to adapt it to page object
+     * Methods for interacting with header elements
      */
+    async verifyLoggedInAs(username) {
+        await expect(this.loggedInAsText).toBeDisplayed();
+        const loggedInText = await this.loggedInAsText.getText();
+        expect(loggedInText).toContain(username);
+    }
+
+    async clickDeleteAccount() {
+        await this.deleteAccountButton.waitForDisplayed();
+        await this.deleteAccountButton.click();
+    }
+
+    async clickLogout() {
+        await this.logoutButton.waitForDisplayed();
+        await this.logoutButton.click();
+    }
+
+    async clickHome() {
+        await this.homeButton.waitForDisplayed();
+        await this.homeButton.click();
+    }
 }
 
-export default new DashboardPage();
+export default new HeaderPage();
